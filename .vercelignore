@@ -3,3 +3,7 @@
 public/pizza-frames/
 public/pizza-video/frames/
 *.png
+
+# Do not deploy old/generated assets
+public/scene/
+public/pizza-frames/

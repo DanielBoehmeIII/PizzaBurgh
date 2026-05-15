@@ -9,3 +9,7 @@
 dist/
 dist/
 dist/
+
+# Abel leftover assets
+public/scene/
+public/pizza-frames/
