@@ -46,6 +46,7 @@
   object-fit: cover;
   z-index: 2;
   transform: scale(1.002);
+  will-change: opacity;
 }
 
 /* ── Cinematic veil — warm bottom gradient ──────────────────── */
@@ -115,5 +116,17 @@
     left: 24px;
     right: 24px;
     max-width: 100%;
+    bottom: 10vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .pc-section {
+    height: 300vh;
+  }
+  .pc-cta-panel {
+    bottom: 6vh;
+    left: 18px;
+    right: 18px;
   }
 }
