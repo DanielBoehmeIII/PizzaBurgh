@@ -3,3 +3,7 @@
 .env
 .env.*
 !.env.example
+.vercel
+
+# Build output
+dist/
