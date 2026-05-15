@@ -1,0 +1,5 @@
+
+# Heavy local/generated assets
+public/pizza-frames/
+public/pizza-video/frames/
+*.png
