@@ -7,3 +7,8 @@ public/pizza-video/frames/
 # Do not deploy old/generated assets
 public/scene/
 public/pizza-frames/
+
+# Do not deploy local dependency/build junk
+node_modules/
+dist/
+.vercel/

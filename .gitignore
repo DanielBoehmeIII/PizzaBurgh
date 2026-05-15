@@ -13,3 +13,8 @@ dist/
 # Abel leftover assets
 public/scene/
 public/pizza-frames/
+
+# Dependencies/build output
+node_modules/
+dist/
+.vercel/
