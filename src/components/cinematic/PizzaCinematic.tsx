@@ -32,12 +32,52 @@ export default function PizzaCinematic({ children, onProgress }: Props) {
   const progressRef      = useRef(0);
   const rafIdRef         = useRef(0);
   const prevVideoTimeRef = useRef(-1);
+  const readyRef         = useRef(false);
 
   const onProgressRef = useRef(onProgress);
   useEffect(() => { onProgressRef.current = onProgress; }, [onProgress]);
 
   const reducedMotion = typeof window !== 'undefined'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Prime video on iOS — metadata and seeking require a play attempt
+  useEffect(() => {
+    if (reducedMotion) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    function prime() {
+      if (!video) return;
+      const p = video.play();
+      if (p !== undefined) {
+        p.then(() => { if (!video.paused) video.pause(); }).catch(() => {});
+      }
+    }
+
+    function onMeta() { readyRef.current = true; }
+    video.addEventListener('loadedmetadata', onMeta);
+
+    prime();
+
+    // iOS: seeking requires a user gesture. Play/pause on first interaction.
+    function onInteraction() {
+      if (!readyRef.current) prime();
+      document.removeEventListener('touchstart', onInteraction);
+      document.removeEventListener('touchend', onInteraction);
+      document.removeEventListener('click', onInteraction);
+    }
+
+    document.addEventListener('touchstart', onInteraction);
+    document.addEventListener('touchend', onInteraction);
+    document.addEventListener('click', onInteraction);
+
+    return () => {
+      video.removeEventListener('loadedmetadata', onMeta);
+      document.removeEventListener('touchstart', onInteraction);
+      document.removeEventListener('touchend', onInteraction);
+      document.removeEventListener('click', onInteraction);
+    };
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -57,7 +97,7 @@ export default function PizzaCinematic({ children, onProgress }: Props) {
 
       const transProgress = easeInOutCubic(clamp((p - 0.12) / 0.76, 0, 1));
 
-      if (video && video.readyState >= 2 && video.duration > 0) {
+      if (video && video.readyState >= 1 && video.duration > 0) {
         const targetTime = transProgress * video.duration;
         if (Math.abs(targetTime - prevVideoTimeRef.current) > 0.005) {
           video.currentTime = targetTime;
