@@ -32,7 +32,7 @@ export default function PizzaCinematic({ children, onProgress }: Props) {
   const progressRef      = useRef(0);
   const rafIdRef         = useRef(0);
   const prevVideoTimeRef = useRef(-1);
-  const readyRef         = useRef(false);
+  const primedRef        = useRef(false);
 
   const onProgressRef = useRef(onProgress);
   useEffect(() => { onProgressRef.current = onProgress; }, [onProgress]);
@@ -50,18 +50,18 @@ export default function PizzaCinematic({ children, onProgress }: Props) {
       if (!video) return;
       const p = video.play();
       if (p !== undefined) {
-        p.then(() => { if (!video.paused) video.pause(); }).catch(() => {});
+        p.then(() => {
+          primedRef.current = true;
+          if (!video.paused) video.pause();
+        }).catch(() => {});
       }
     }
 
-    function onMeta() { readyRef.current = true; }
-    video.addEventListener('loadedmetadata', onMeta);
-
     prime();
 
-    // iOS: seeking requires a user gesture. Play/pause on first interaction.
+    // iOS: seeking requires a user gesture. Prime on first interaction.
     function onInteraction() {
-      if (!readyRef.current) prime();
+      if (!primedRef.current) prime();
       document.removeEventListener('touchstart', onInteraction);
       document.removeEventListener('touchend', onInteraction);
       document.removeEventListener('click', onInteraction);
@@ -72,7 +72,6 @@ export default function PizzaCinematic({ children, onProgress }: Props) {
     document.addEventListener('click', onInteraction);
 
     return () => {
-      video.removeEventListener('loadedmetadata', onMeta);
       document.removeEventListener('touchstart', onInteraction);
       document.removeEventListener('touchend', onInteraction);
       document.removeEventListener('click', onInteraction);
